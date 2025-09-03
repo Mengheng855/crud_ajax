@@ -275,8 +275,8 @@ $ex = mysqli_query($conn, $select);
                                             <button type="button" class="btn btn-warning" name="edit" data-bs-toggle="modal" data-bs-target="#exampleModal'.$row['id'].'">
                                                 Edit
                                             </button>
-                                            <button class="btn-action btn-delete" value="'.$row['id'].'" name="delete">
-                                                <i class="fas fa-trash"></i> Delete
+                                            <button class="btn btn-danger" value="'.$row['id'].'" name="delete">
+                                                Delete
                                             </button>
                                         </div>
                                     </form>
@@ -355,7 +355,7 @@ $ex = mysqli_query($conn, $select);
                                         <img id="images"
                                             src="image/'.$row['image'].'"
                                             alt="" width="200px" height="200px"> <br>
-                                        <input type="files" name="file" id="file" class="form-control">
+                                        <input type="file" name="files" id="files" class="form-control">
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary"
                                                 data-bs-dismiss="modal">Close</button>
@@ -559,14 +559,16 @@ $ex = mysqli_query($conn, $select);
                                     <div class="salary-text">${salary}$</div>
                                 </td>
                                 <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-edit">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </button>
-                                        <button class="btn-action btn-delete">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </button>
-                                    </div>
+                                    <form action="delete.php" method="post">
+                                        <div class="action-buttons">
+                                            <button type="button" class="btn btn-warning" name="edit" data-bs-toggle="modal" data-bs-target="#exampleModal'.$row['id'].'">
+                                                Edit
+                                            </button>
+                                            <button class="btn btn-danger"   name="delete">
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </form>
                                 </td>
                             </tr>
                         `)
@@ -576,6 +578,7 @@ $ex = mysqli_query($conn, $select);
                
             })
             $('btn-delete').click(function(){
+              
                 let row=$(this).closest("tr");
                 let id=row.find('td:first').text().trim();
                 $.ajax({
@@ -587,41 +590,10 @@ $ex = mysqli_query($conn, $select);
                     }
                 })
             })
-            // $('#files').hide();  
-            // $('#images').click(function(){
-            //     $('#files').click();
-            // })
             $('#edit').click(function(){
-                let file=this.files[0];
-                let id=$('#id').val();
-                let name=$('#name').val();
-                let email=$('#email').val();
-                let phone_number=$('#phone_number').val();
-                let location=$('#province').val();
-                let position=$('#position').val();
-                let salary=$('#salary').val();
-                $.ajax({
-                    url:"edit.php",
-                    type:"POST",
-                    data:{
-                        id:id,
-                        name:name,
-                        email:email,
-                        phone_number:phone_number,
-                        location:location,
-                        position:position,
-                        salary:salary,
-                        file:file
-
-                    },
-                    cache:false,
-                    success:function(){
-                        alert('hello')
-                    }
-                })
+                $('#files').hide();
             })
         })
     </script>
 </body>
-
 </html>
