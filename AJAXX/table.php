@@ -44,7 +44,7 @@ $ex = mysqli_query($conn, $select);
                         <td><img src="upload/' . $row['profile'] . '" alt="" width="60px"></td>
                         <td>
                             <form action="delete.php" method="post">
-                                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModal" name="edit" id="edit">Edit</button>
+                                <button type="button" class="btn btn-warning" data-bs-toggle="modal"  data-bs-target="#exampleModal" name="edit" id="update">Edit</button>
                                 <button type="button" class="btn btn-danger" name="delete" value="' . $row['id'] . '" id="delete">delete</button>
                             </form>
                         </td>
@@ -98,6 +98,7 @@ $ex = mysqli_query($conn, $select);
 </body>
 
 </html>
+
 <script>
     $(document).ready(function() {
         $('#file').hide();
@@ -113,14 +114,16 @@ $ex = mysqli_query($conn, $select);
         })
         $('#add').click(function() {
             $('#edit').hide();
-            $('#add').show();
+            $('#upload').show();
+            $('#form')[0].reset();
+            $('#image').attr('src', 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg');
+            $('#exampleModalLabel').text('Add employee');
         })
         $('#upload').click(function() {
             let file = $('#file')[0].files[0];
             let name = $('#name').val();
             let email = $('#email').val();
             let gender = $('#gender').val();
-
 
             let formdata = new FormData();
             formdata.append('file', file);
@@ -136,15 +139,15 @@ $ex = mysqli_query($conn, $select);
                 processData: false,
                 success: function(response) {
                     let image = $('#image').attr('src');
-                    $('tbody').append(`                      
-                        <tr >
+                    $('table tbody').append(`                      
+                        <tr>
                             <td>${response}</td>
                             <td>${name}</td>
                             <td>${gender}</td>
                             <td>${email}</td>
                             <td><img src="${image}" alt="" width="60px"></td>
                             <td>
-                                <button class="btn btn-warning" name="edit" id="edit">Edit</button>
+                                <button class="btn btn-warning" name="edit" id="update" data-bs-toggle="modal" data-bs-target="#exampleModal">Edit</button>
                                 <button class="btn btn-danger" name="delete" id="delete">Delete</button>
                             </td>
                         </tr>
@@ -154,9 +157,6 @@ $ex = mysqli_query($conn, $select);
                 }
             })
         })
-
-
-
 
         //delete
         $(document).on('click', '#delete', function() {
@@ -170,68 +170,76 @@ $ex = mysqli_query($conn, $select);
                 },
                 success: function(response) {
                     row.remove();
-
                 }
             })
         })
 
+        //edit (open modal and fill fields)
+        $(document).on('click', '#update', function() {
+            $('#upload').hide();
+            $('#edit').show();
+            $('#exampleModalLabel').text('Update Employee');
 
-        //edit
-        $(document).on('click', '#edit', function() {
+            let row = $(this).closest('tr');
+            let id = row.find('td:eq(0)').text().trim();
+            let name = row.find('td:eq(1)').text().trim();
+            let gender = row.find('td:eq(2)').text().trim();
+            let email = row.find('td:eq(3)').text().trim();
+            let imageSrc = row.find('td:eq(4) img').attr('src');
 
-            
-                // Hide Save, show Update
-                $('#upload').hide();
-                $('#edit').show(); // This is the button inside modal
-                $('#exampleModalLabel').text('Update Employee');
+            $('#name').val(name);
+            $('#gender').val(gender);
+            $('#email').val(email);
+            $('#image').attr('src', imageSrc);
 
-                // Get row data
-                let row = $(this).closest('tr');
-                let id = row.find('td:eq(0)').text().trim();
-                let name = row.find('td:eq(1)').text().trim();
-                let gender = row.find('td:eq(2)').text().trim();
-                let email = row.find('td:eq(3)').text().trim();
-                let imageSrc = row.find('td:eq(4) img').attr('src');
+            // Store id in #edit button
+            $('#edit').data('id', id);
+        });
 
-                // Fill modal fields
-                $('#name').val(name);
-                $('#gender').val(gender);
-                $('#email').val(email);
-                $('#image').attr('src', imageSrc);
+        //edit (submit update)
+        $('#edit').click(function() {
+            let id = $(this).data('id');
+            let file = $('#file')[0].files[0];
+            let name = $('#name').val();
+            let email = $('#email').val();
+            let gender = $('#gender').val();
 
-                // Store ID in Update button
-                $('#edit').data('id', id);
-
-                // Show modal (optional if not using data-bs-toggle)
-                
-        
-
+            let formdata = new FormData();
+            formdata.append('id', id);
+            formdata.append('file', file);
+            formdata.append('name', name);
+            formdata.append('gender', gender);
+            formdata.append('email', email);
 
             $.ajax({
                 url: 'edit.php',
                 type: 'POST',
-                data: formData,
+                data: formdata,
                 contentType: false,
                 processData: false,
                 success: function(response) {
+                    // Find the row with this id and update its cells
+                    $('table tbody tr').each(function() {
+                        if ($(this).find('td:eq(0)').text().trim() == id) {
+                            $(this).find('td:eq(1)').text(name);
+                            $(this).find('td:eq(2)').text(gender);
+                            $(this).find('td:eq(3)').text(email);
+                            if (file) {
+                                let imgURL = $('#image').attr('src');
+                                $(this).find('td:eq(4) img').attr('src', imgURL);
+                            }
+                        }
+                    });
                     $('#form')[0].reset();
                     $('#image').attr('src', 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg');
-                 
+                    $('#edit').hide();
+                    $('#upload').show();
+                    $('#exampleModalLabel').text('Add employee');
+                    // Hide modal
+                    $('.modal').modal('hide');
                 }
-            });
+            })
         });
-
-
-
-
-
-
-
-
-
-
-
-
 
     })
 </script>
