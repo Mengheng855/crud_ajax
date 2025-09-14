@@ -14,7 +14,7 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
         echo "Error: This email already exists.";
         exit;
     }
-
+    
     $file = '';
     
     // Process file upload if it exists
